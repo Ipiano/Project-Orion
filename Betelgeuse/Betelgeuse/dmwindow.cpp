@@ -32,7 +32,8 @@ DmWindow::DmWindow(QWidget *parent) :
     connect(ui->button_scripts, SIGNAL(clicked(bool)), scriptEdit, SLOT(show()));
     connect(scriptEdit, SIGNAL(runScript(QString)), this, SLOT(executeScript(QString)));
     connect(&refreshTables, SIGNAL(timeout()), this, SLOT(refreshTableList()));
-    connect(ui->list_tables, SIGNAL(currentTextChanged(QString)), this, SLOT(displayTableData(QString)));
+    connect(ui->list_tables, SIGNAL(currentTextChanged(QString)), this, SLOT(displayTableInfo(QString)));
+    connect(ui->button_manageData, SIGNAL(clicked(bool)), this, SLOT(manageTableData()));
 
     refreshTables.setInterval(1000);
     refreshTables.setSingleShot(true);
@@ -88,7 +89,7 @@ void DmWindow::changeTab(int tab)
     }
 }
 
-void DmWindow::displayTableData(QString table)
+void DmWindow::displayTableInfo(QString table)
 {
     qDebug() << "Displaying data for table " << table;
     QSqlRecord rec = db.driver()->record(table);
@@ -99,5 +100,18 @@ void DmWindow::displayTableData(QString table)
     {
         ui->table_currentTable->setItem(0, i, new QTableWidgetItem(rec.fieldName(i)));
         ui->table_currentTable->setItem(1, i, new QTableWidgetItem(QMetaType::typeName(rec.field(i).type())));
+    }
+
+    selectedTable = table;
+}
+
+void DmWindow::manageTableData()
+{
+    qDebug() << "Displaying table: " << selectedTable;
+    if(selectedTable != "")
+    {
+        if(!managedTables.contains(selectedTable))
+            managedTables[selectedTable] = new tableManager(selectedTable, db, this);
+        managedTables[selectedTable]->show();
     }
 }

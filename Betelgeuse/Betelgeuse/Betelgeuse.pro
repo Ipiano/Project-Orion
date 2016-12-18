@@ -29,15 +29,18 @@ CONFIG(release, debug|release) {
 SOURCES += main.cpp \
     dmwindow.cpp \
     generalscripteditor.cpp \
-    yesnocanceldialog.cpp
+    yesnocanceldialog.cpp \
+    tablemanager.cpp
 
 HEADERS  += \
     dmwindow.h \
     initdb.h \
     generalscripteditor.h \
-    yesnocanceldialog.h
+    yesnocanceldialog.h \
+    tablemanager.h
 
 FORMS    += \
     dmwindow.ui \
     generalscripteditor.ui \
-    yesnocanceldialog.ui
+    yesnocanceldialog.ui \
+    tablemanager.ui
