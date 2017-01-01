@@ -30,17 +30,26 @@ SOURCES += main.cpp \
     dmwindow.cpp \
     generalscripteditor.cpp \
     yesnocanceldialog.cpp \
-    tablemanager.cpp
+    tablemanager.cpp \
+    choosesearchdialog.cpp \
+    modifiablecombolist.cpp \
+    rolltableresult.cpp
 
 HEADERS  += \
     dmwindow.h \
     initdb.h \
     generalscripteditor.h \
     yesnocanceldialog.h \
-    tablemanager.h
+    tablemanager.h \
+    choosesearchdialog.h \
+    modifiablecombolist.h \
+    rolltableresult.h
 
 FORMS    += \
     dmwindow.ui \
     generalscripteditor.ui \
     yesnocanceldialog.ui \
-    tablemanager.ui
+    tablemanager.ui \
+    choosesearchdialog.ui \
+    modifiablecombolist.ui \
+    rolltableresult.ui

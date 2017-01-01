@@ -105,5 +105,5 @@ void generalScriptEditor::openFile()
 
 void generalScriptEditor::execute()
 {
-    emit runScript(ui->text_editor->toPlainText().remove('\n'));
+    emit runScript(ui->text_editor->toPlainText().replace('\n', ' '));
 }

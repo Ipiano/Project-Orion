@@ -21,8 +21,6 @@ private:
     QSqlTableModel *model;
     QSqlDatabase db;
     QString tableName;
-    int sortColumn = 0;
-    Qt::SortOrder sortOrder = Qt::AscendingOrder;
 
     void showError(const QSqlError &err);
 
@@ -30,8 +28,6 @@ private slots:
     void submitAll();
     void deleteCurrent();
     void addNew();
-    void sort();
-    void dataChanged();
     void revertAll();
 };
 

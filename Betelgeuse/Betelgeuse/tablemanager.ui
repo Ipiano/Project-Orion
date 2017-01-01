@@ -21,13 +21,6 @@
        <widget class="QTableView" name="list_rows"/>
       </item>
       <item>
-       <widget class="QPushButton" name="button_sort">
-        <property name="text">
-         <string>Sort by selected column (Click again to change sort direction)</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
          <widget class="QPushButton" name="button_new">
