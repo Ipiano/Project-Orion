@@ -6,6 +6,7 @@
 #include <functional>
 #include <QDebug>
 #include <QSqlQuery>
+#include <QRegularExpression>
 
 using namespace std;
 
@@ -88,6 +89,45 @@ void ChooseSearchDialog::queryTextChange()
     {
         dirty.first = combo->currentIndex();
         dirty.second = ui->edit_query->toPlainText();
+
+        QRegularExpression toks("(<<.*?>>)");
+        QRegularExpressionMatchIterator iter = toks.globalMatch(dirty.second);
+        QStringList matches;
+        while(iter.hasNext())
+        {
+            QRegularExpressionMatch m = iter.next();
+            QString tmp = m.captured();
+            tmp = tmp.mid(2, tmp.size()-4);
+            matches << tmp;
+
+            qDebug() << "Found parameter " << tmp;
+
+            bool in = false;
+            for(int i=0; i<params.size() && !in; i++)
+            {
+                if(params[i]->label() == tmp) in = true;
+            }
+            if(!in)
+            {
+                qDebug() << "Add parameter " << tmp;
+                params.push_back(new SearchParameter(tmp));
+                ui->layout_parameters->addWidget(*(params.end()-1));
+            }
+        }
+
+        qDebug() << "Currently " << params.size() << " params";
+        for(int i=0; i<params.size(); i++)
+        {
+            if(!matches.contains(params[i]->label()))
+            {
+                qDebug() << "Remove parameter " << params[i]->label();
+                ui->layout_parameters->removeWidget(params[i]);
+                params[i]->deleteLater();
+                params.remove(i);
+                i--;
+            }
+        }
+
     }
 }
 
@@ -110,7 +150,12 @@ QString ChooseSearchDialog::createSearchQuery()
             || q.contains("delete", Qt::CaseInsensitive) || q.contains("drop", Qt::CaseInsensitive)
             || !q.contains("select", Qt::CaseInsensitive)) return "";
 
-    return q.replace('\n', ' ');
+    q.replace('\n', ' ');
+    for(SearchParameter* p : params)
+    {
+        q.replace("<<" + p->label() + ">>", p->value());
+    }
+    return q;
 }
 
 void ChooseSearchDialog::changeSelected(QString name)
@@ -125,4 +170,17 @@ void ChooseSearchDialog::changeSelected(QString name)
     else
         qDebug() << "No query found for " << name << "???";
 }
+
+void ChooseSearchDialog::clearParams()
+{
+    qDebug() << "Clear params";
+    for(SearchParameter* p : params)
+    {
+        ui->layout_parameters->removeWidget(p);
+        p->deleteLater();
+    }
+
+    params.clear();
+}
+
 

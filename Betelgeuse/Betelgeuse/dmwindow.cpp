@@ -166,7 +166,10 @@ void DmWindow::manageTableData()
     if(selectedTable != "")
     {
         if(!managedTables.contains(selectedTable))
+        {
             managedTables[selectedTable] = new tableManager(selectedTable, db, this);
+            managedTables[selectedTable]->setWindowTitle("Table Manager: " + selectedTable);
+        }
         managedTables[selectedTable]->show();
     }
 }
@@ -330,11 +333,14 @@ void DmWindow::rollCurrentRollTable()
     RollTableResult* result = new RollTableResult(this);
     connect(result, SIGNAL(closing()), result, SLOT(deleteLater()));
 
-    for(int i=0; i<ui->count_rollRollTable->value(); i++)
+    int items = ui->count_rollRollTable->value();
+    for(int i=0; i< items; i++)
     {
         int index = rand()%rollTableModel->rowCount();
         result->addItem(rollTableModel->record(index).field("item").value().toString());
     }
+
+    result->setWindowTitle("Roll result: " + QString::number(items) + " items from " + rollCombo->currentIndex());
 
     result->show();
 }

@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>SQL Script Editor</string>
   </property>
   <widget class="QWidget" name="layout_text">
    <layout class="QVBoxLayout" name="verticalLayout">
