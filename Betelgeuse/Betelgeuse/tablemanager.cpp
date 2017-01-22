@@ -27,8 +27,8 @@ tableManager::tableManager(QString table, QSqlDatabase database, QWidget *parent
     connect(ui->button_revert, SIGNAL(clicked(bool)), this, SLOT(revertAll()));
     connect(ui->button_delete, SIGNAL(clicked(bool)), this, SLOT(deleteCurrent()));
     connect(ui->button_new, SIGNAL(clicked(bool)), this, SLOT(addNew()));
-    connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)), this, SLOT(dataChanged()));
-    connect(ui->list_rows->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(dataChanged()));
+    //connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)), this, SLOT(dataChanged()));
+    //connect(ui->list_rows->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(dataChanged()));
 
     tableName = table;
     db = database;

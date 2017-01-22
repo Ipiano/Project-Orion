@@ -3,6 +3,7 @@
 #include "initdb.h"
 #include "modifiablecombolist.h"
 #include "rolltableresult.h"
+#include "tableeditor.h"
 
 #include <QString>
 #include <QFileDialog>
@@ -11,6 +12,8 @@
 #include <QMessageBox>
 #include <QSortFilterProxyModel>
 #include <algorithm>
+
+#define DEVMODE
 
 DmWindow::DmWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -35,6 +38,9 @@ DmWindow::DmWindow(QWidget *parent) :
     connect(scriptEdit, SIGNAL(runScript(QString)), this, SLOT(executeScript(QString)));
     connect(ui->list_tables, SIGNAL(currentTextChanged(QString)), this, SLOT(displayTableInfo(QString)));
     connect(ui->button_manageData, SIGNAL(clicked(bool)), this, SLOT(manageTableData()));
+    connect(ui->button_deleteTable, SIGNAL(clicked(bool)), this, SLOT(deleteTable()));
+    connect(ui->button_newTable, SIGNAL(clicked(bool)), this, SLOT(newTable()));
+    connect(ui->button_modifyTable, SIGNAL(clicked(bool)), this, SLOT(modifyTable()));
 
     //Search tab
     generalSearchDia = new ChooseSearchDialog(db, this);
@@ -95,8 +101,14 @@ void DmWindow::showMessage(const QString& msg, const QString& head)
     QMessageBox::critical(this, head, msg);
 }
 
+
+/***************************************************************************
+********************************TABLES**************************************
+***************************************************************************/
+
 void DmWindow::executeScript(QString script)
 {
+#ifndef DEVMODE
     for(QString s : SYSTEM_TABLES)
     {
         if(script.contains(s))
@@ -105,7 +117,7 @@ void DmWindow::executeScript(QString script)
             return;
         }
     }
-
+#endif
     qDebug() << "Executing sql script: " << script;
     if(query(script, db).lastError().type() != QSqlError::NoError)
         showError(db.lastError());
@@ -119,10 +131,18 @@ void DmWindow::refreshTableList()
     QStringList tables = db.tables();
     if(foundTables != tables)
     {
-        qDebug() << "Tables found: " << tables;
+#ifndef DEVMODE
+        QStringList filteredTables;
+        for(QString t : tables)
+            if(!SYSTEM_TABLES.contains(t))
+                filteredTables << t;
+#else
+        QStringList filteredTables = tables;
+#endif
+        qDebug() << "Tables found: " << filteredTables;
 
         ui->list_tables->clear();
-        ui->list_tables->addItems(tables);
+        ui->list_tables->addItems(filteredTables);
 
         foundTables = tables;
     }
@@ -153,11 +173,6 @@ void DmWindow::displayTableInfo(QString table)
     }
 
     selectedTable = table;
-
-    if(SYSTEM_TABLES.contains(table))
-        ui->button_manageData->setEnabled(false);
-    else
-        ui->button_manageData->setEnabled(true);
 }
 
 void DmWindow::manageTableData()
@@ -173,6 +188,55 @@ void DmWindow::manageTableData()
         managedTables[selectedTable]->show();
     }
 }
+
+void DmWindow::newTable()
+{
+    QString name;
+    int i=0;
+    while(db.tables().contains("NewTable"+QString::number(i))) i++;
+    name = "NewTable" + QString::number(i);
+
+    query("create table " + name + "(defaultColumn int primary key);", db);
+
+    QJsonArray meta{QJsonObject{{"name", "defaultColumn"}, {"type", "int"}, {"index", true}}};
+    QString metaString = QJsonDocument(meta).toJson(QJsonDocument::Compact);
+    query("insert into " + TABLEMETADATA_TABLE + " values ('" + name + "', '" + metaString + "')", db);
+
+    refreshTableList();
+
+    TableEditor* e = new TableEditor(db, name, this);
+    connect(e, &TableEditor::exiting, e, &TableEditor::deleteLater);
+    connect(e, &TableEditor::exiting, this, &DmWindow::refreshTableList);
+    e->show();
+
+}
+
+void DmWindow::deleteTable()
+{
+    if(ui->list_tables->currentRow() < 0) return;
+    QString name = ui->list_tables->currentItem()->text();
+
+    query("drop table " + name + ";", db);
+    query("delete from " + TABLEMETADATA_TABLE + " where tableName='" + name + "';", db);
+
+    refreshTableList();
+}
+
+void DmWindow::modifyTable()
+{
+    if(ui->list_tables->currentRow() < 0) return;
+    QString name = ui->list_tables->currentItem()->text();
+
+    TableEditor* e = new TableEditor(db, name, this);
+    connect(e, &TableEditor::exiting, e, &TableEditor::deleteLater);
+    connect(e, &TableEditor::exiting, this, &DmWindow::refreshTableList);
+    e->show();
+
+}
+
+/***************************************************************************
+********************************ROLLTABLES**********************************
+***************************************************************************/
 
 void DmWindow::rolltableSearch()
 {
@@ -344,6 +408,11 @@ void DmWindow::rollCurrentRollTable()
 
     result->show();
 }
+
+
+/***************************************************************************
+********************************GENERALSEARCH*******************************
+***************************************************************************/
 
 void DmWindow::generalSearch()
 {

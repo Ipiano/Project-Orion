@@ -10,7 +10,8 @@ const QString QUERY_TABLE = "savedQueries";
 const QString ROLLTABLEITEMS_TABLE = "rolltableItems";
 const QString ROLLTABLES_TABLE = "rolltables";
 const QString ITEMSINROLLTABLE_TABLE = "itemInRolltable";
-const QVector<QString> SYSTEM_TABLES{QUERY_TABLE, ROLLTABLES_TABLE, ROLLTABLEITEMS_TABLE, ITEMSINROLLTABLE_TABLE, "sqlite_sequence"};
+const QString TABLEMETADATA_TABLE = "tableMetadata";
+const QVector<QString> SYSTEM_TABLES{QUERY_TABLE, ROLLTABLES_TABLE, ROLLTABLEITEMS_TABLE, ITEMSINROLLTABLE_TABLE, TABLEMETADATA_TABLE, "sqlite_sequence"};
 
 inline QSqlQuery query(QString text, QSqlDatabase& db)
 {
@@ -53,6 +54,13 @@ inline QSqlError initDb(QSqlDatabase& db)
     if(!db.tables().contains(ITEMSINROLLTABLE_TABLE))
     {
         QSqlQuery q = query("Create table " + ITEMSINROLLTABLE_TABLE + "(id integer primary key autoincrement, tableId integer, itemId integer)", db);
+        if(q.lastError().type() != QSqlError::NoError)
+            return q.lastError();
+    }
+
+    if(!db.tables().contains(TABLEMETADATA_TABLE))
+    {
+        QSqlQuery q = query("Create table " + TABLEMETADATA_TABLE + "(tableName text, jsonMeta text)", db);
         if(q.lastError().type() != QSqlError::NoError)
             return q.lastError();
     }

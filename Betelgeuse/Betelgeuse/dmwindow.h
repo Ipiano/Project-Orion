@@ -58,6 +58,9 @@ private slots:
     void refreshTableList();
     void displayTableInfo(QString table);
     void manageTableData();
+    void newTable();
+    void deleteTable();
+    void modifyTable();
 
     //Search tab
     void generalSearch();

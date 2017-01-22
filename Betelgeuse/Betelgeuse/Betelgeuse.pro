@@ -34,7 +34,9 @@ SOURCES += main.cpp \
     choosesearchdialog.cpp \
     modifiablecombolist.cpp \
     rolltableresult.cpp \
-    searchparameter.cpp
+    searchparameter.cpp \
+    tableeditor.cpp \
+    tablecolumneditor.cpp
 
 HEADERS  += \
     dmwindow.h \
@@ -45,7 +47,9 @@ HEADERS  += \
     choosesearchdialog.h \
     modifiablecombolist.h \
     rolltableresult.h \
-    searchparameter.h
+    searchparameter.h \
+    tablecolumneditor.h \
+    tableeditor.h
 
 FORMS    += \
     dmwindow.ui \
@@ -55,4 +59,6 @@ FORMS    += \
     choosesearchdialog.ui \
     modifiablecombolist.ui \
     rolltableresult.ui \
-    searchparameter.ui
+    searchparameter.ui \
+    tablecolumneditor.ui \
+    tableeditor.ui

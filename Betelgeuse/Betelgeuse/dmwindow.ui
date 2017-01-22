@@ -48,7 +48,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <property name="elideMode">
        <enum>Qt::ElideNone</enum>
@@ -68,12 +68,26 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Tables</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QListWidget" name="list_tables">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Table Metadata</string>
           </property>
          </widget>
         </item>
@@ -122,18 +136,51 @@
         <item>
          <layout class="QHBoxLayout" name="layout_buttons">
           <item>
-           <widget class="QPushButton" name="button_scripts">
-            <property name="text">
-             <string>Scripts...</string>
-            </property>
-           </widget>
+           <layout class="QVBoxLayout" name="verticalLayout_left">
+            <item>
+             <widget class="QPushButton" name="button_newTable">
+              <property name="text">
+               <string>New Table</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="button_scripts">
+              <property name="text">
+               <string>SQL Scripts...</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
           <item>
-           <widget class="QPushButton" name="button_manageData">
-            <property name="text">
-             <string>Manage Data</string>
-            </property>
-           </widget>
+           <layout class="QVBoxLayout" name="verticalLayout_middle">
+            <item>
+             <widget class="QPushButton" name="button_manageData">
+              <property name="text">
+               <string>Manage Data</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_right">
+            <item>
+             <widget class="QPushButton" name="button_modifyTable">
+              <property name="text">
+               <string>Modify Table</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="button_deleteTable">
+              <property name="text">
+               <string>Delete Table</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </item>
