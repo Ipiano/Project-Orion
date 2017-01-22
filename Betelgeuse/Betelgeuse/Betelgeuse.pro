@@ -26,6 +26,10 @@ CONFIG(release, debug|release) {
     DEFINES += QT_NO_DEBUG_OUTPUT
 }
 
+CONFIG(debug, debug|release) {
+    DEFINES += DEVMODE
+}
+
 SOURCES += main.cpp \
     dmwindow.cpp \
     generalscripteditor.cpp \

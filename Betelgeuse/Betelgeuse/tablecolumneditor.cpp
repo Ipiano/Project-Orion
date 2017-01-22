@@ -1,5 +1,6 @@
 #include "tablecolumneditor.h"
 #include "ui_tablecolumneditor.h"
+#include "initdb.h"
 
 #include <functional>
 #include <QSqlRecord>
@@ -26,8 +27,20 @@ TableColumnEditor::TableColumnEditor(QSqlDatabase db, QWidget *parent) :
     connect(ui->combo_refColumn, SIGNAL(currentIndexChanged(QString)), this, SLOT(changeReferenceColumn()));
     connect(ui->combo_refTable, SIGNAL(currentIndexChanged(QString)), this, SLOT(changeReferenceTable()));
 
+    ui->combo_type->clear();
     ui->combo_type->addItems(DATA_TYPENAMES);
+
+#ifdef DEVMODE
     ui->combo_refTable->addItems(db.tables());
+#else
+    QStringList filtered;
+    for(QString q : db.tables())
+        if(!SYSTEM_TABLES.contains(q))
+            filtered << q;
+
+    ui->combo_refTable->addItems(filtered);
+#endif
+
 
     changeReferenceState(false);
     changeReferenceTable();
@@ -72,7 +85,8 @@ void TableColumnEditor::changeReferenceState(bool isReference)
 
 void TableColumnEditor::changeDatatype()
 {
-    if(ui->combo_type->currentIndex() < 0) return;
+    if(ui->combo_type->currentIndex() < 0)
+        ui->combo_type->setCurrentIndex(2);
     QString type = DATA_TYPES[ui->combo_type->currentIndex()];
 
     _meta["type"] = type;
@@ -149,8 +163,10 @@ void TableColumnEditor::initFromData(QJsonObject meta)
 
     ui->combo_type->setCurrentIndex(DATA_TYPES.indexOf(meta["type"].toString()));
     ui->check_isIndex->setChecked(meta["index"].toBool());
+    _meta["index"] = meta["index"];
     if(meta["index"].toBool()) emit isIndex(this);
     ui->check_isRef->setChecked(meta["foreign"].toBool());
+    _meta["foreign"] = meta["foreign"];
 
     QString table = meta["foreignTable"].toString();
     QString column = meta["foreignCol"].toString();

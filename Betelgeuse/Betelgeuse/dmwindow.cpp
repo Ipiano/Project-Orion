@@ -13,8 +13,6 @@
 #include <QSortFilterProxyModel>
 #include <algorithm>
 
-#define DEVMODE
-
 DmWindow::DmWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::DmWindow)
@@ -145,6 +143,11 @@ void DmWindow::refreshTableList()
         ui->list_tables->addItems(filteredTables);
 
         foundTables = tables;
+    }
+    else
+    {
+        if(ui->list_tables->currentRow() >= 0)
+            displayTableInfo(ui->list_tables->currentItem()->text());
     }
 }
 
