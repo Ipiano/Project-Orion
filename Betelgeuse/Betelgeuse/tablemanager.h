@@ -16,6 +16,12 @@ public:
     explicit tableManager(QString table, QSqlDatabase database, QWidget *parent = 0);
     ~tableManager();
 
+    void show()
+    {
+        model->select();
+        QMainWindow::show();
+    }
+
 private:
     Ui::tableManager *ui;
     QSqlTableModel *model;
