@@ -10,6 +10,8 @@
 #include "generalscripteditor.h"
 #include "tablemanager.h"
 #include "choosesearchdialog.h"
+#include "rollmultipletables.h"
+#include "tableeditor.h"
 
 namespace Ui {
 class DmWindow;
@@ -33,6 +35,7 @@ private:
     //Tables tab
     QStringList foundTables;
     QHash<QString, tableManager*> managedTables;
+    QHash<QString, TableEditor*> editedTables;
     QString selectedTable = "";
 
     //Search tab
@@ -45,6 +48,7 @@ private:
     QSqlQueryModel* rollSearchModel;
     QSqlQueryModel* rollTableModel;
     RollTableItemsProxyModel* rollTableProxy;
+    RollMultipleTables* rollMultipleWindow;
 
     void showError(const QSqlError &err);
     void showMessage(const QString& msg, const QString &head = "Warning");
@@ -61,6 +65,7 @@ private slots:
     void newTable();
     void deleteTable();
     void modifyTable();
+    void openTableEditor(QString table);
 
     //Search tab
     void generalSearch();

@@ -41,21 +41,21 @@ inline QSqlError upgradeDatabaseVersion(QSqlDatabase db, int oldVersion = -1)
 
         if(!db.tables().contains(ROLLTABLES_TABLE))
         {
-            QSqlQuery q = query("Create table " + ROLLTABLES_TABLE + "(id integer primary key autoincrement , name text unique)", db);
+            QSqlQuery q = query("Create table " + ROLLTABLES_TABLE + "(id integer primary key , name text unique)", db);
             if(q.lastError().type() != QSqlError::NoError)
                 return q.lastError();
         }
 
         if(!db.tables().contains(ROLLTABLEITEMS_TABLE))
         {
-            QSqlQuery q = query("Create table " + ROLLTABLEITEMS_TABLE + "(id integer primary key autoincrement , item text unique)", db);
+            QSqlQuery q = query("Create table " + ROLLTABLEITEMS_TABLE + "(id integer primary key, item text unique)", db);
             if(q.lastError().type() != QSqlError::NoError)
                 return q.lastError();
         }
 
         if(!db.tables().contains(ITEMSINROLLTABLE_TABLE))
         {
-            QSqlQuery q = query("Create table " + ITEMSINROLLTABLE_TABLE + "(id integer primary key autoincrement, tableId integer, itemId integer)", db);
+            QSqlQuery q = query("Create table " + ITEMSINROLLTABLE_TABLE + "(id integer primary key, tableId integer, itemId integer)", db);
             if(q.lastError().type() != QSqlError::NoError)
                 return q.lastError();
         }

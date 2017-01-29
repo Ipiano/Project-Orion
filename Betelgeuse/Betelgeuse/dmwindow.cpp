@@ -79,6 +79,10 @@ DmWindow::DmWindow(QWidget *parent) :
     connect(ui->button_addToRollTable, SIGNAL(clicked(bool)), this, SLOT(addSelectedToRolltable()));
     connect(ui->button_removeFromRollTable, SIGNAL(clicked(bool)), this, SLOT(removeSelectedFromRolltable()));
     connect(ui->button_rollRollTable, SIGNAL(clicked(bool)), this, SLOT(rollCurrentRollTable()));
+
+    rollMultipleWindow = new RollMultipleTables(db);
+    connect(this, SIGNAL(destroyed(QObject*)), rollMultipleWindow, SLOT(deleteLater()));
+    connect(ui->button_rollMultiple, SIGNAL(clicked(bool)), rollMultipleWindow, SLOT(show()));
     rollTableProxy->sort(0);
 
     changeTab(ui->widget_tabs->currentIndex());
@@ -185,8 +189,9 @@ void DmWindow::manageTableData()
     {
         if(!managedTables.contains(selectedTable))
         {
-            managedTables[selectedTable] = new tableManager(selectedTable, db, this);
+            managedTables[selectedTable] = new tableManager(selectedTable, db);
             managedTables[selectedTable]->setWindowTitle("Table Manager: " + selectedTable);
+            connect(this, SIGNAL(destroyed(QObject*)), managedTables[selectedTable], SLOT(deleteLater()));
         }
         managedTables[selectedTable]->show();
     }
@@ -207,10 +212,7 @@ void DmWindow::newTable()
 
     refreshTableList();
 
-    TableEditor* e = new TableEditor(db, name, this);
-    connect(e, &TableEditor::exiting, e, &TableEditor::deleteLater);
-    connect(e, &TableEditor::exiting, this, &DmWindow::refreshTableList);
-    e->show();
+    openTableEditor(name);
 
 }
 
@@ -225,16 +227,29 @@ void DmWindow::deleteTable()
     refreshTableList();
 }
 
+void DmWindow::openTableEditor(QString table)
+{
+    if(!editedTables.contains(table))
+    {
+        TableEditor* e = new TableEditor(db, table);
+        editedTables[table] = e;
+        connect(e, &TableEditor::exiting, this, &DmWindow::refreshTableList);
+        connect(e, &TableEditor::exiting,
+        [e, table, this]()
+        {
+            editedTables.remove(table);
+            e->deleteLater();
+        });
+        editedTables[table]->show();
+    }
+}
+
 void DmWindow::modifyTable()
 {
     if(ui->list_tables->currentRow() < 0) return;
     QString name = ui->list_tables->currentItem()->text();
 
-    TableEditor* e = new TableEditor(db, name, this);
-    connect(e, &TableEditor::exiting, e, &TableEditor::deleteLater);
-    connect(e, &TableEditor::exiting, this, &DmWindow::refreshTableList);
-    e->show();
-
+    openTableEditor(name);
 }
 
 /***************************************************************************
@@ -397,7 +412,9 @@ void DmWindow::removeSelectedFromRolltable()
 
 void DmWindow::rollCurrentRollTable()
 {
-    RollTableResult* result = new RollTableResult(this);
+    if(!rollCombo->currentIndex().size()) return;
+
+    RollTableResult* result = new RollTableResult();
     connect(result, SIGNAL(closing()), result, SLOT(deleteLater()));
 
     int items = ui->count_rollRollTable->value();

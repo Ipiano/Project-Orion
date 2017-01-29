@@ -7,7 +7,7 @@
 #include <QSqlDatabase>
 #include <QJsonObject>
 
-const QStringList DATA_TYPES{"int", "real", "text"};
+const QStringList DATA_TYPES{"integer", "real", "text"};
 const QStringList DATA_TYPENAMES{"Integer", "Decimal", "Text"};
 
 namespace Ui {

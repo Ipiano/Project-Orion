@@ -13,13 +13,8 @@ TableEditor::TableEditor(QSqlDatabase db, QString tableName, QWidget *parent) :
 {
     ui->setupUi(this);
 
-    noIndex();
-
-    initFromTableName(tableName);
-
     connect(ui->button_newColumn, SIGNAL(pressed()), this, SLOT(addColumn()));
 
-    connect(ui->button_cancel, &QPushButton::pressed, this, &TableEditor::exiting);
     connect(ui->button_cancel, &QPushButton::pressed, this, &TableEditor::close);
     connect(ui->edit_tableName, &QLineEdit::editingFinished, this, &TableEditor::setTableName);
     connect(ui->button_saveExit, &QPushButton::pressed, this, &TableEditor::saveAndExit);
@@ -157,12 +152,12 @@ void TableEditor::saveAndExit()
     if(!updateTable(_name, metas)) _db.rollback();
     else _db.commit();
 
-    emit exiting();
     close();
 }
 
 bool TableEditor::updateTable(QString table, QJsonArray newTable)
 {
+    qDebug() << "Updating table: " << newTable;
     _db.transaction();
 
     QSqlQuery q;

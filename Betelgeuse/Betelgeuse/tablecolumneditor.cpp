@@ -113,18 +113,21 @@ void TableColumnEditor::changeReferenceColumn()
     QSqlRecord rec = _db.driver()->record(table);
     QSqlField field = rec.field(rec.indexOf(col));
 
-    QString fieldType =  QMetaType::typeName(field.type());
-    qDebug() << "Column " << rec.indexOf(col) << " field type " << fieldType;
-    if(fieldType == "int")
-        ui->combo_type->setCurrentIndex(0);
-    else if(fieldType == "double")
-        ui->combo_type->setCurrentIndex(1);
-    else if(fieldType == "QString")
-        ui->combo_type->setCurrentIndex(2);
-    else
+    if(ui->check_isRef->isChecked())
     {
-        ui->combo_type->setCurrentIndex(2);
-        changeDatatype();
+        QString fieldType =  QMetaType::typeName(field.type());
+        qDebug() << "Column " << rec.indexOf(col) << " field type " << fieldType;
+        if(fieldType == "int")
+            ui->combo_type->setCurrentIndex(0);
+        else if(fieldType == "double")
+            ui->combo_type->setCurrentIndex(1);
+        else if(fieldType == "QString")
+            ui->combo_type->setCurrentIndex(2);
+        else
+        {
+            ui->combo_type->setCurrentIndex(2);
+            changeDatatype();
+        }
     }
 
     _meta["foreignTable"] = table;
@@ -160,6 +163,9 @@ void TableColumnEditor::initFromData(QJsonObject meta)
     }
     else
         _meta["oldName"] = originalName;
+
+    if(meta["type"].toString() == "int")
+        meta["type"] = "integer";
 
     ui->combo_type->setCurrentIndex(DATA_TYPES.indexOf(meta["type"].toString()));
     ui->check_isIndex->setChecked(meta["index"].toBool());

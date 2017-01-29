@@ -40,7 +40,10 @@ SOURCES += main.cpp \
     rolltableresult.cpp \
     searchparameter.cpp \
     tableeditor.cpp \
-    tablecolumneditor.cpp
+    tablecolumneditor.cpp \
+    rolltableselector.cpp \
+    rollmultipletables.cpp \
+    multiplerolltableresults.cpp
 
 HEADERS  += \
     dmwindow.h \
@@ -53,7 +56,10 @@ HEADERS  += \
     rolltableresult.h \
     searchparameter.h \
     tablecolumneditor.h \
-    tableeditor.h
+    tableeditor.h \
+    rolltableselector.h \
+    rollmultipletables.h \
+    multiplerolltableresults.h
 
 FORMS    += \
     dmwindow.ui \
@@ -65,4 +71,7 @@ FORMS    += \
     rolltableresult.ui \
     searchparameter.ui \
     tablecolumneditor.ui \
-    tableeditor.ui
+    tableeditor.ui \
+    rolltableselector.ui \
+    rollmultipletables.ui \
+    multiplerolltableresults.ui

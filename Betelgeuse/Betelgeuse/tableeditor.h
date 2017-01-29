@@ -7,6 +7,7 @@
 #include <QMessageBox>
 #include <QSqlDatabase>
 #include <QSqlError>
+#include <QCloseEvent>
 
 #include "tablecolumneditor.h"
 
@@ -28,6 +29,22 @@ class TableEditor : public QMainWindow
 public:
     explicit TableEditor(QSqlDatabase db, QString tableName, QWidget *parent = 0);
     ~TableEditor();
+
+    void closeEvent(QCloseEvent *event)
+    {
+        emit exiting();
+        event->accept();
+    }
+
+public slots:
+    void show()
+    {
+        noIndex();
+
+        initFromTableName(_name);
+
+        QMainWindow::show();
+    }
 
 private slots:
     void addColumn(QJsonObject meta = QJsonObject());
