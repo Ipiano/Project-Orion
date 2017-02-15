@@ -12,6 +12,7 @@
 #include "choosesearchdialog.h"
 #include "rollmultipletables.h"
 #include "tableeditor.h"
+#include "dieroller.h"
 
 namespace Ui {
 class DmWindow;
@@ -50,6 +51,10 @@ private:
     RollTableItemsProxyModel* rollTableProxy;
     RollMultipleTables* rollMultipleWindow;
 
+    //Dice tab
+    ModifiableComboList* diceCombo;
+    QVector<DieRoller*> currDice;
+
     void showError(const QSqlError &err);
     void showMessage(const QString& msg, const QString &head = "Warning");
 
@@ -81,6 +86,18 @@ private slots:
     void removeSelectedFromRolltable();
     void refreshRollTableList();
     void rollCurrentRollTable();
+
+    //Dice tab
+    void saveDiceSet();
+    void loadDiceSet();
+    void addDie(int sides = 0);
+    void removeDie(DieRoller* d);
+    bool newDiceSet(QString name);
+    bool copyDiceSet(QString oldName, QString copyName);
+    bool renameDiceSet(QString oldName, QString newName);
+    bool deleteDiceSet(QString name);
+    void refreshDiceSetsList();
+    void clearDice();
 };
 
 class DmWindow::RollTableItemsProxyModel : public QSortFilterProxyModel

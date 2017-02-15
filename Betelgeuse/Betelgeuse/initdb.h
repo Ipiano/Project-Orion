@@ -12,9 +12,11 @@ const QString ROLLTABLES_TABLE = "rolltables";
 const QString ITEMSINROLLTABLE_TABLE = "itemInRolltable";
 const QString TABLEMETADATA_TABLE = "tableMetadata";
 const QString DATABASEMETA_TABLE = "tableDatabasemeta";
-const QVector<QString> SYSTEM_TABLES{DATABASEMETA_TABLE, QUERY_TABLE, ROLLTABLES_TABLE, ROLLTABLEITEMS_TABLE, ITEMSINROLLTABLE_TABLE, TABLEMETADATA_TABLE, "sqlite_sequence"};
+const QString DICESETS_TABLE = "diceSets";
+const QVector<QString> SYSTEM_TABLES{DICESETS_TABLE, DATABASEMETA_TABLE, QUERY_TABLE
+            , ROLLTABLES_TABLE, ROLLTABLEITEMS_TABLE, ITEMSINROLLTABLE_TABLE, TABLEMETADATA_TABLE, "sqlite_sequence"};
 
-const int DBVersion = 1;
+const int DBVersion = 2;
 
 inline QSqlQuery query(QString text, QSqlDatabase& db)
 {
@@ -27,8 +29,8 @@ inline QSqlQuery query(QString text, QSqlDatabase& db)
 
 inline QSqlError upgradeDatabaseVersion(QSqlDatabase db, int oldVersion = -1)
 {
-    qDebug() << "Upgrading database from version " + oldVersion;
-    if(oldVersion < 0)
+    qDebug() << "Upgrading database from version " + QString::number(oldVersion);
+    if(oldVersion < 1)
     {
         if(!db.tables().contains(QUERY_TABLE))
         {
@@ -72,10 +74,17 @@ inline QSqlError upgradeDatabaseVersion(QSqlDatabase db, int oldVersion = -1)
             QSqlQuery q = query("Create table " + DATABASEMETA_TABLE + "(valueName text primary key, data text)", db);
             if(q.lastError().type() != QSqlError::NoError)
                 return q.lastError();
-            query("insert into " + DATABASEMETA_TABLE + " values('version', '" + QString::number(DBVersion) + "')", db);
         }
     }
 
+    if(oldVersion < 2)
+    {
+        QSqlQuery q = query("Create table " + DICESETS_TABLE + "(setName text primary key, dicelist text)", db);
+        if(q.lastError().type() != QSqlError::NoError)
+            return q.lastError();
+    }
+
+    query("update " + DATABASEMETA_TABLE + " set data = " + QString::number(DBVersion) + " where valueName = 'version';", db);
     return QSqlError();
 }
 
@@ -93,9 +102,9 @@ inline QSqlError initDb(QSqlDatabase& db)
     }
     else
     {
-        QSqlQuery getVersion = query("select * from " + DATABASEMETA_TABLE + " where valueName='version'", db);
+        QSqlQuery getVersion = query("select data from " + DATABASEMETA_TABLE + " where valueName='version'", db);
         getVersion.next();
-        int versionNum = getVersion.record().field("version").value().toInt();
+        int versionNum = getVersion.value(0).toInt();
         return upgradeDatabaseVersion(db, versionNum);
     }
 

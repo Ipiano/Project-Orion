@@ -43,7 +43,8 @@ SOURCES += main.cpp \
     tablecolumneditor.cpp \
     rolltableselector.cpp \
     rollmultipletables.cpp \
-    multiplerolltableresults.cpp
+    multiplerolltableresults.cpp \
+    dieroller.cpp
 
 HEADERS  += \
     dmwindow.h \
@@ -59,7 +60,8 @@ HEADERS  += \
     tableeditor.h \
     rolltableselector.h \
     rollmultipletables.h \
-    multiplerolltableresults.h
+    multiplerolltableresults.h \
+    dieroller.h
 
 FORMS    += \
     dmwindow.ui \
@@ -74,4 +76,5 @@ FORMS    += \
     tableeditor.ui \
     rolltableselector.ui \
     rollmultipletables.ui \
-    multiplerolltableresults.ui
+    multiplerolltableresults.ui \
+    dieroller.ui

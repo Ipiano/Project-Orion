@@ -85,6 +85,17 @@ DmWindow::DmWindow(QWidget *parent) :
     connect(ui->button_rollMultiple, SIGNAL(clicked(bool)), rollMultipleWindow, SLOT(show()));
     rollTableProxy->sort(0);
 
+    //Dice tab
+    diceCombo = new ModifiableComboList;
+    ui->layout_dicesetselect->addWidget(diceCombo);
+    connect(diceCombo, SIGNAL(newItem(QString)), this, SLOT(newDiceSet(QString)));
+    connect(diceCombo, SIGNAL(copyItem(QString,QString)), this, SLOT(copyDiceSet(QString,QString)));
+    connect(diceCombo, SIGNAL(deleteItem(QString)), this, SLOT(deleteDiceSet(QString)));
+    connect(diceCombo, SIGNAL(nameChange(QString,QString)), this, SLOT(renameDiceSet(QString,QString)));
+    connect(diceCombo, SIGNAL(selectionChange(QString)), this, SLOT(loadDiceSet()));
+    connect(ui->button_addDie, &QPushButton::clicked, [this](){addDie();});
+    connect(ui->button_addDie, &QPushButton::clicked, this, &DmWindow::saveDiceSet);
+
     changeTab(ui->widget_tabs->currentIndex());
 }
 
@@ -163,6 +174,7 @@ void DmWindow::changeTab(int tab)
     {
         case 0: refreshTableList(); break;
         case 2: refreshRollTableList(); break;
+        case 3: refreshDiceSetsList(); break;
     }
 }
 
@@ -437,4 +449,110 @@ void DmWindow::rollCurrentRollTable()
 void DmWindow::generalSearch()
 {
     generalSearchDia->exec();
+}
+
+/***************************************************************************
+********************************DICE****************************************
+***************************************************************************/
+void DmWindow::saveDiceSet()
+{
+    QString dat = "";
+    for(int i=0; i<currDice.size(); i++)
+    {
+        dat += QString::number(currDice[i]->sides());
+        if(i < currDice.size() - 1) dat += ",";
+    }
+    QString name = diceCombo->currentIndex();
+    query("update " + DICESETS_TABLE + " set dicelist='" + dat + "' where setName='" + name + "';", db);
+}
+void DmWindow::clearDice()
+{
+    for(DieRoller* d : currDice)
+    {
+        d->deleteLater();
+        ui->layout_dice->removeWidget(d);
+    }
+    currDice.clear();
+}
+
+void DmWindow::loadDiceSet()
+{
+    clearDice();
+
+    QString name = diceCombo->currentIndex();
+    QString dat;
+    QSqlQuery q = query("select dicelist from " + DICESETS_TABLE + " where setName='" + name + "';", db);
+    if(q.next())
+    {
+        dat = q.value(0).toString();
+        QStringList sides = dat.split(',');
+        for(QString s : sides)
+        {
+            if(s.size())
+                addDie(s.toInt());
+        }
+    }
+}
+
+bool DmWindow::newDiceSet(QString name)
+{
+    QSqlQuery q = query("insert into " + DICESETS_TABLE + " values('" + name + "', '');", db);
+    if(q.lastError().type() != QSqlError::NoError)
+        return false;
+
+    clearDice();
+
+    return true;
+}
+
+bool DmWindow::copyDiceSet(QString oldName, QString copyName)
+{
+    QSqlQuery old = query("select dicelist from " + DICESETS_TABLE + " where setName='" + oldName + "';", db);
+    if(old.lastError().type() != QSqlError::NoError || !old.next())
+        return false;
+    QString dat = old.value(0).toString();
+    QSqlQuery newt = query("insert into " + DICESETS_TABLE + " values('" + copyName + "', '" + dat + "');", db);
+    if(newt.lastError().type() != QSqlError::NoError)
+        return false;
+    return true;
+}
+
+bool DmWindow::renameDiceSet(QString oldName, QString newName)
+{
+    QSqlQuery rename = query("update " + DICESETS_TABLE + " set setName='" + newName + "' where setName='" + oldName + "';", db);
+    return rename.lastError().type() == QSqlError::NoError;
+}
+
+bool DmWindow::deleteDiceSet(QString name)
+{
+    QSqlQuery del = query("delete from " + DICESETS_TABLE + " where setName='" + name + "';", db);
+    return del.lastError().type() == QSqlError::NoError;
+}
+
+void DmWindow::addDie(int sides)
+{
+    DieRoller* die = new DieRoller(sides, this);
+    connect(die, &DieRoller::sidesChanged, this, &DmWindow::saveDiceSet);
+    connect(die, &DieRoller::remove, this, &DmWindow::removeDie);
+    connect(die, &DieRoller::remove, this, &DmWindow::saveDiceSet);
+    connect(ui->button_rollSet, &QPushButton::clicked, die, &DieRoller::roll);
+    currDice.push_back(die);
+    ui->layout_dice->addWidget(die);
+}
+
+void DmWindow::removeDie(DieRoller* d)
+{
+    ui->layout_dice->removeWidget(d);
+    currDice.removeAll(d);
+    d->deleteLater();
+}
+
+void DmWindow::refreshDiceSetsList()
+{
+    QStringList sets;
+    QSqlQuery names = query("select setName from " + DICESETS_TABLE, db);
+    while(names.next())
+        sets << names.value(0).toString();
+
+    diceCombo->setItems(sets);
 }
